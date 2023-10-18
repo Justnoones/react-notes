@@ -1,35 +1,68 @@
-import React, { memo, useState } from 'react';
+import React from 'react';
 
 const App = () => {
-  let [ userName, setUserName ] = useState("");
-  let [ age, setAge ] = useState(0);
-  // name log every time state changes | rerender
-  // but age only log when age is changed
+  // filteredItems rerendered when the filter state changes but not when the theme state changes
+  let [ filterStatus, setFilterStatus ] = React.useState('');
+  let [ theme, setTheme ] = React.useState(true);
+  let realTheme = theme ? 'Light' : 'Dark';
+  const filteredItems = React.useMemo(() => {
+    console.log('filteredItems function rendered');
+    let items = [
+      {
+        name: 'todo 1',
+        active: true
+      },
+      {
+        name: 'todo 2',
+        active: false
+      },
+      {
+        name: 'todo 3',
+        active: true
+      },
+      {
+        name: 'todo 4',
+        active: true
+      },
+      {
+        name: 'todo 5',
+        active: true
+      },
+      {
+        name: 'todo 6',
+        active: false
+      },
+      {
+        name: 'todo 7',
+        active: false
+      },
+      {
+        name: 'todo 8',
+        active: true
+      }
+    ];
+    let rv = items;
+    if (filterStatus === 'active') {
+      rv = items.filter(items => items.active === true);
+    } else if (filterStatus === 'completed') {
+      rv = items.filter(items => items.active !== true);
+    }
+    return rv;
+  }, [filterStatus]);
   return (
-    <section>
-      <figure>
-        <figcaption>Name : {userName}</figcaption>
-        <input type="text" onChange={e => setUserName(e.target.value)} />
-      </figure>
-      <figure>
-        <figcaption>age : {age}</figcaption>
-        <input type="text" onChange={e => setAge(e.target.value)} />
-      </figure>
-      <LogUserName userName={userName} />
-      <LogAge age={age} />
-    </section>
+    <>
+      <h1>{realTheme} Theme</h1>
+      <button onClick={() => setTheme(ps => !ps)}>Theme Toggler</button>
+      <select onChange={e => setFilterStatus(e.target.value)}>
+        <option value="all">All</option>
+        <option value="active">Active</option>
+        <option value="completed">Completed</option>
+      </select>
+      {filteredItems.map(item => (
+        <p key={item.name}>{item.name} - status : {item.active ? 'active' : 'completed'}</p>
+      ))}
+    </>
   )
-}
-
-
-const LogUserName = (userName) => {
-  console.log(userName);
-  return true;
-}
-
-const LogAge = memo(function LogAge(age) {
-  console.log(age);
-
-});
+};
 
 export default App
